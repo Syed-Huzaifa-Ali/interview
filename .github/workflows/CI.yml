@@ -38,6 +38,7 @@ jobs:
 
       - name: Run tests
         run: sbt test
+        working-directory: forex-mtl
 
   build:
     name: Build
@@ -60,3 +61,4 @@ jobs:
 
       - name: Compile
         run: sbt compile
+        working-directory: forex-mtl
