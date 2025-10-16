@@ -1,0 +1,161 @@
+# ============================================
+# Forex Rate Service - Configuration Example
+# ============================================
+#
+# This is a template configuration file for local development.
+# Copy this file to 'application-local.conf' and update with your credentials.
+#
+# Usage:
+#   cp application.conf.example application-local.conf
+#   # Edit application-local.conf with your tokens
+#   sbt "-Dconfig.file=application-local.conf" run
+#
+# ============================================
+
+app {
+
+  # HTTP Server Configuration
+  # -------------------------
+  http {
+    # Server host binding
+    # For local dev: "localhost" or "0.0.0.0"
+    # For production: "0.0.0.0" (bind to all interfaces)
+    host = "0.0.0.0"
+    host = ${?HTTP_HOST}
+
+    # Server port
+    # Default: 3000 (to avoid conflict with One-Frame on 8080)
+    port = 3000
+    port = ${?HTTP_PORT}
+
+    # Request timeout
+    # Maximum time to process a request before returning timeout error
+    timeout = 40 seconds
+  }
+
+  # Authentication Configuration
+  # ----------------------------
+  auth {
+    # Internal API token for client authentication
+    #
+    # This token is used by internal services to authenticate with this API
+    #
+    # SECURITY NOTES:
+    # - Generate a strong, random token for production
+    # - Use different tokens for dev/staging/prod environments
+    # - Rotate tokens periodically
+    # - Never commit real tokens to Git
+    #
+    # Example generation:
+    #   openssl rand -hex 32
+    #   or
+    #   uuidgen
+    #
+    # FOR LOCAL DEVELOPMENT:
+    #   Replace with your own test token
+    token = "your-internal-api-token-here"
+    token = ${?AUTH_TOKEN}
+  }
+
+  # One-Frame API Configuration
+  # ---------------------------
+  one-frame {
+    # One-Frame service base URL
+    #
+    # Local development (with Docker):
+    #   http://localhost:8080
+    #
+    # Production:
+    #   https://one-frame-api.example.com
+    base-url = "http://localhost:8080"
+    base-url = ${?ONE_FRAME_BASE_URL}
+
+    # One-Frame API authentication token
+    #
+    # IMPORTANT: This is the token for the external One-Frame API
+    #
+    # Default test token (for local Docker One-Frame):
+    #   10dc303535874aeccc86a8251e6992f5
+    #
+    # FOR PRODUCTION:
+    #   Replace with your actual One-Frame production token
+    token = "10dc303535874aeccc86a8251e6992f5"
+    token = ${?ONE_FRAME_TOKEN}
+
+    # Request timeout for calling One-Frame API
+    #
+    # If One-Frame doesn't respond within this time, return 503 error
+    # Recommended: 300-500 milliseconds for fast failure
+    request-timeout = 400 milliseconds
+
+    # Connection timeout for One-Frame API
+    #
+    # Maximum time to establish a connection
+    connect-timeout = 200 milliseconds
+  }
+
+  # Redis Configuration
+  # -------------------
+  redis {
+    # Redis connection URI
+    #
+    # Format: redis://[password@]host[:port][/database]
+    #
+    # Examples:
+    #   Local development:
+    #     redis://localhost:6379
+    #
+    #   With password:
+    #     redis://:mypassword@localhost:6379
+    #
+    #   Remote Redis:
+    #     redis://redis-server:6379/0
+    #
+    #   Redis Cluster:
+    #     redis://node1:6379,node2:6379,node3:6379
+    uri = "redis://localhost:6379"
+    uri = ${?REDIS_URI}
+
+    # Cache Time-To-Live (TTL)
+    #
+    # How long to keep rates in cache before considering them stale
+    # MUST be 5 minutes per requirements (rates < 5 minutes old)
+    #
+    # WARNING: Changing this affects rate freshness guarantee
+    cache-ttl = 5 minutes
+
+    # Background refresh interval
+    #
+    # Recommended: Same as cache-ttl (5 minutes)
+    #
+    # API Usage Calculation:
+    #   Refresh frequency: Every 5 minutes
+    #   Refreshes per day: 1440 min ÷ 5 min = 288 refreshes
+    #   API calls per day: 288 (well under 1000 limit)
+    refresh-interval = 5 minutes
+  }
+}
+
+# ============================================
+# Quick Start Guide
+# ============================================
+#
+# 1. Copy this file:
+#      cp application.conf.example application-local.conf
+#
+# 2. Edit application-local.conf:
+#      - Set auth.token to your test token
+#      - Verify one-frame.base-url (usually http://localhost:8080)
+#      - Verify redis.uri (usually redis://localhost:6379)
+#
+# 3. Start dependencies:
+#      docker-compose up -d
+#
+# 4. Run the application:
+#      sbt "-Dconfig.file=application-local.conf" run
+#
+# 5. Test the API:
+#      curl -H "token: your-internal-api-token-here" \
+#        'http://localhost:3000/rates?from=USD&to=EUR'
+#
+# ============================================

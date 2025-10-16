@@ -19,5 +19,11 @@ TAGS
 *.sublime-project
 *.sublime-workspace
 tests.iml
+# CRITICAL - Prevents committing secrets
+application-local.conf
+.env
+.env.*
+secrets/
+*.pem, *.key
 # Auto-copied by sbt-microsites
 docs/src/main/tut/contributing.md

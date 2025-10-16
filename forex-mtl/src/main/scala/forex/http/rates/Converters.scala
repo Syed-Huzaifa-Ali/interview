@@ -10,9 +10,8 @@ object Converters {
       GetApiResponse(
         from = rate.pair.from,
         to = rate.pair.to,
-        price = rate.price,
-        timestamp = rate.timestamp
+        price = rate.price.value,
+        timestamp = formatTimestamp(rate.timestamp)
       )
   }
-
 }
